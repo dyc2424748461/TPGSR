@@ -3,17 +3,17 @@ MODEL:
 
 TRAIN:
   train_data_dir: [
-           '/data0_ssd2t/majianqi/TextZoom/train1',
-           '/data0_ssd2t/majianqi/TextZoom/train2',
+           '/workspace/TPGSR/data/TextZoom/train1',
+           '/workspace/TPGSR/data/TextZoom/train2',
           
   ]
-  batch_size: 512
+  batch_size: 4
   width: 128
   height: 32
   epochs: 5000
-  cuda: True
-  ngpu: 2
-  workers: 1
+  cuda: False
+  ngpu: 1
+  workers: 0
   resume: ''
   ckpt_dir: './ckpt/with_test'
   voc_type: 'all' #'digits lower upper all'
@@ -32,16 +32,16 @@ TRAIN:
   VAL:
     val_data_dir: [
              
-            '/data0_ssd2t/majianqi/TextZoom/test/easy',
-            '/data0_ssd2t/majianqi/TextZoom/test/medium',
-            '/data0_ssd2t/majianqi/TextZoom/test/hard',
+            '/workspace/TPGSR/data/TextZoom/test/easy',
+            '/workspace/TPGSR/data/TextZoom/test/medium',
+            '/workspace/TPGSR/data/TextZoom/test/hard',
     ]
     n_vis: 10
     vis_dir: 'demo'
     valInterval: 200 #-1, val at the end of epoch
-    rec_pretrained: 'aster_demo.pth.tar'
-    moran_pretrained: 'moran_demo.pth'
-    crnn_pretrained: 'crnn.pth'
+    rec_pretrained: '/workspace/TPGSR/pretrained/aster.pth.tar'
+    moran_pretrained: '/workspace/TPGSR/pretrained/moran.pth'
+    crnn_pretrained: '/workspace/TPGSR/pretrained/crnn.pth'
 
 TEST:
   checkpoint: ''
