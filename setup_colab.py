@@ -88,7 +88,7 @@ def download_dataset():
         return False
 
 def download_pretrained_models():
-    """Download pretrained recognizer models"""
+    """Download pretrained recognizer models with multiple methods"""
     print("\n=== Downloading Pretrained Models ===")
     
     os.makedirs('pretrained', exist_ok=True)
@@ -99,17 +99,61 @@ def download_pretrained_models():
         'crnn.pth': '1ooaHefQp0wDATLvOZlsXyLCjWiHSHKX'
     }
     
-    for model_name, file_id in models.items():
-        try:
-            print(f"Downloading {model_name}...")
-            gdown.download(f'https://drive.google.com/uc?id={file_id}', 
-                          f'pretrained/{model_name}', quiet=False)
-            print(f"✓ {model_name} downloaded")
-        except Exception as e:
-            print(f"✗ Error downloading {model_name}: {e}")
-            return False
+    success_count = 0
     
-    return True
+    for model_name, file_id in models.items():
+        model_path = f'pretrained/{model_name}'
+        
+        # Skip if file already exists and is valid
+        if os.path.exists(model_path) and os.path.getsize(model_path) > 10 * 1024 * 1024:  # > 10MB
+            print(f"✓ {model_name} already exists")
+            success_count += 1
+            continue
+        
+        print(f"Downloading {model_name}...")
+        
+        # Method 1: gdown
+        try:
+            gdown.download(f'https://drive.google.com/uc?id={file_id}', 
+                          model_path, quiet=False)
+            if os.path.exists(model_path) and os.path.getsize(model_path) > 10 * 1024 * 1024:
+                print(f"✓ {model_name} downloaded with gdown")
+                success_count += 1
+                continue
+        except Exception as e:
+            print(f"gdown failed for {model_name}: {e}")
+        
+        # Method 2: wget
+        try:
+            cmd = f'wget --no-check-certificate "https://drive.google.com/uc?export=download&id={file_id}" -O "{model_path}"'
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            if result.returncode == 0 and os.path.exists(model_path) and os.path.getsize(model_path) > 10 * 1024 * 1024:
+                print(f"✓ {model_name} downloaded with wget")
+                success_count += 1
+                continue
+        except Exception as e:
+            print(f"wget failed for {model_name}: {e}")
+        
+        # Method 3: curl
+        try:
+            cmd = f'curl -L "https://drive.google.com/uc?export=download&id={file_id}" -o "{model_path}"'
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            if result.returncode == 0 and os.path.exists(model_path) and os.path.getsize(model_path) > 10 * 1024 * 1024:
+                print(f"✓ {model_name} downloaded with curl")
+                success_count += 1
+                continue
+        except Exception as e:
+            print(f"curl failed for {model_name}: {e}")
+        
+        print(f"✗ Failed to download {model_name}")
+    
+    if success_count == len(models):
+        print("✓ All models downloaded successfully")
+        return True
+    else:
+        print(f"✗ Only {success_count}/{len(models)} models downloaded")
+        print("Please check MANUAL_DOWNLOAD.md for manual download instructions")
+        return False
 
 def update_configuration(cuda_available):
     """Update configuration for Colab environment"""
